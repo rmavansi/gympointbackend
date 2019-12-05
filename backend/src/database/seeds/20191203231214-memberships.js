@@ -13,14 +13,14 @@ module.exports = {
         {
           title: 'Gold',
           duration: 3,
-          price: 327,
+          price: 109,
           created_at: new Date(),
           updated_at: new Date(),
         },
         {
           title: 'Diamond',
           duration: 6,
-          price: 534,
+          price: 89,
           created_at: new Date(),
           updated_at: new Date(),
         },

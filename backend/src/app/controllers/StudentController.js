@@ -69,13 +69,15 @@ class StudentController {
       return res.status(400).json({ error: 'Validation failed.' });
     }
 
-    const student = await Student.findByPk(req.params.id)
+    const student = await Student.findByPk(req.params.id);
 
     if (!student) {
       return res.status(400).json({ error: 'Student does not exist.' });
     }
 
-    const { id, name, email, age, weight, height } = await student.update(req.body);
+    const { id, name, email, age, weight, height } = await student.update(
+      req.body
+    );
 
     return res.json({
       id,

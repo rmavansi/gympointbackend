@@ -3,7 +3,6 @@ import Membership from '../models/Membership';
 
 class MembershipController {
   async store(req, res) {
-
     const schema = Yup.object().shape({
       title: Yup.string().required(),
       duration: Yup.number()
@@ -14,7 +13,6 @@ class MembershipController {
         .positive()
         .required(),
     });
-
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation failed.' });
@@ -51,8 +49,7 @@ class MembershipController {
       return res.status(400).json({ error: 'Validation failed.' });
     }
 
-    const membership = await Membership.findByPk(req.params.id)
-
+    const membership = await Membership.findByPk(req.params.id);
 
     if (!membership) {
       return res.status(400).json({ error: 'Membership does not exist.' });
@@ -69,7 +66,7 @@ class MembershipController {
   }
 
   async delete(req, res) {
-    const membership = await Membership.findByPk(req.params.id)
+    const membership = await Membership.findByPk(req.params.id);
 
     if (!membership) {
       return res.status(400).json({ error: 'Membership does not exist.' });
@@ -77,7 +74,7 @@ class MembershipController {
 
     await membership.destroy();
 
-    return res.json({ message: "Membership deleted successfully!"});
+    return res.json({ message: 'Membership deleted successfully!' });
   }
 }
 
