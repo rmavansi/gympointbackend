@@ -62,7 +62,7 @@ class EnrollmentController {
      * Notify student has a new membership
      */
     await Notification.create({
-      content: `New membership for ${student.name}.`,
+      content: `New membership for ${student.name}`,
       student: student.id,
     });
 
