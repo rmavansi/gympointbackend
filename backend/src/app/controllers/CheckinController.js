@@ -1,6 +1,5 @@
 import { subDays, addDays, startOfDay, endOfDay } from 'date-fns';
-import Sequelize from 'sequelize';
-import Checkin from '../models/Checkin';
+import Checkin from '../schemas/checkin';
 import Student from '../models/Student';
 
 class CheckinController {
@@ -21,39 +20,32 @@ class CheckinController {
     /**
      * Get all checkins within last 7 days
      */
-    const check7days = await Checkin.findAndCountAll({
-      where: {
-        student_id,
-        created_at: {
-          [Sequelize.Op.between]: [
-            subDays(endOfDay(new Date()), 7),
-            endOfDay(new Date()),
-          ],
-        },
-      },
-      order: ['created_at'],
-      include: [
-        {
-          model: Student,
-          as: 'student',
-          attributes: ['name', 'email'],
-        },
-      ],
-    });
+    const check7days = await Checkin.find({
+      student: student_id,
+    })
+      .gte('createdAt', subDays(endOfDay(new Date()), 7))
+      .lte('createdAt', endOfDay(new Date()))
+      .countDocuments();
 
     /**
      * Check if student has more than 5 checkins within last 7 days
      */
-    if (check7days.count > 4) {
+    if (check7days > 4) {
+      const nextCheckin = await Checkin.find({
+        student: student_id,
+      })
+        .gte('createdAt', subDays(endOfDay(new Date()), 7))
+        .lte('createdAt', endOfDay(new Date()))
+        .sort({ createdAt: -1 });
       return res.status(400).json({
         error: `You cannot check in more than 5 times within last 7 days! Check in after: ${startOfDay(
-          addDays(check7days.rows[0].createdAt, 7)
+          addDays(nextCheckin[4].createdAt, 7)
         )}.`,
       });
     }
 
     const checkIn = await Checkin.create({
-      student_id,
+      student: student_id,
     });
 
     return res.json(checkIn);
@@ -73,17 +65,9 @@ class CheckinController {
       return res.status(400).json({ error: 'Student does not exist.' });
     }
 
-    const checkin = await Checkin.findAll({
-      where: { student_id },
-      order: ['created_at'],
-      include: [
-        {
-          model: Student,
-          as: 'student',
-          attributes: ['name', 'email'],
-        },
-      ],
-    });
+    const checkin = await Checkin.find({
+      student: student_id,
+    }).sort({ createdAt: -1 });
 
     return res.status(200).json(checkin);
   }

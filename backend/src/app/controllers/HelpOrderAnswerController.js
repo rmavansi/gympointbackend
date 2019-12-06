@@ -43,7 +43,7 @@ class HelpOrderAnswerController {
      * Notify student has a new answer
      */
     await Notification.create({
-      content: `New answered question from ${helpOrderAnswer.student.name}`,
+      content: `New question from ${helpOrderAnswer.student.name} was answered`,
       student: helpOrderAnswer.student_id,
     });
 
