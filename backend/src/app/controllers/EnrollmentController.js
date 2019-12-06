@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { addMonths, parseISO } from 'date-fns';
+import { addMonths, parseISO, areIntervalsOverlapping } from 'date-fns';
 import Enrollment from '../models/Enrollment';
 import Student from '../models/Student';
 import Membership from '../models/Membership';
@@ -50,11 +50,40 @@ class EnrollmentController {
       return res.status(400).json({ error: 'Membership does not exist.' });
     }
 
+    /**
+     * Check if student has an enrollment overlap
+     */
+
+    const enroll = await Enrollment.findAll({
+      where: { student_id },
+    });
+
+    const end_date = addMonths(parseISO(start_date), membership.duration);
+    const sDate = parseISO(start_date);
+
+    enroll.map(e => {
+      const startDate = e.start_date;
+      const endDate = e.end_date;
+
+      if (
+        areIntervalsOverlapping(
+          { start: startDate, end: endDate },
+          { start: sDate, end: end_date }
+        )
+      ) {
+        return res.status(400).json({
+          error:
+            'Student already has a membership at this period, choose another date.',
+        });
+      }
+      return '';
+    });
+
     const enrollment = await Enrollment.create({
       student_id,
       membership_id,
       start_date: parseISO(start_date),
-      end_date: addMonths(parseISO(start_date), membership.duration),
+      end_date,
       price: membership.price * membership.duration,
     });
 
