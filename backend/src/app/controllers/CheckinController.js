@@ -1,6 +1,8 @@
 import { subDays, addDays, startOfDay, endOfDay } from 'date-fns';
+import Sequelize from 'sequelize';
 import Checkin from '../schemas/checkin';
 import Student from '../models/Student';
+import Enrollment from '../models/Enrollment';
 
 class CheckinController {
   async store(req, res) {
@@ -9,12 +11,30 @@ class CheckinController {
     /**
      * Check if student_id exists
      */
-    const student = await Student.findOne({
+    const student = await Student.findAll({
       where: { id: student_id },
     });
 
     if (!student) {
       return res.status(400).json({ error: 'Student does not exist.' });
+    }
+
+    /**
+     * Check if student has an active membership
+     */
+
+    const checkActiveEnrollment = await Enrollment.findOne({
+      where: {
+        student_id,
+        start_date: { [Sequelize.Op.lte]: new Date() },
+        end_date: { [Sequelize.Op.gte]: new Date() },
+      },
+    });
+
+    if (!checkActiveEnrollment) {
+      return res
+        .status(400)
+        .json({ error: 'Student does not have an active membership.' });
     }
 
     /**
