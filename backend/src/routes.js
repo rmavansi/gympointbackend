@@ -5,6 +5,7 @@ import StudentController from './app/controllers/StudentController';
 import SessionController from './app/controllers/SessionController';
 import MembershipController from './app/controllers/MembershipController';
 import EnrollmentController from './app/controllers/EnrollmentController';
+import CheckinController from './app/controllers/CheckinController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -12,6 +13,9 @@ const routes = new Router();
 
 routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
+
+routes.get('/students/:id/checkins', CheckinController.index);
+routes.post('/students/:id/checkins', CheckinController.store);
 
 routes.use(authMiddleware);
 
@@ -29,5 +33,6 @@ routes.get('/enrollments/:id', EnrollmentController.index);
 routes.post('/enrollments', EnrollmentController.store);
 routes.put('/enrollments/:id', EnrollmentController.update);
 routes.delete('/enrollments/:id', EnrollmentController.delete);
+
 
 export default routes;
